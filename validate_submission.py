@@ -79,10 +79,10 @@ def validate_and_zip(output_dir, test_poses_dir, zip_name):
                     if w != target_w or h != target_h:
                         errors.append(f"Scene {scene_name}: Dimension mismatch for {img_name}. Expected {target_w}x{target_h}, got {w}x{h}")
                     
-                    # Check if image is blank (all same color) or contains invalid values
+                    # Check if image is blank (all same color or mean value < 1.0)
                     img_data = np.array(img)
-                    if np.all(img_data == img_data[0, 0, 0]):
-                        errors.append(f"Scene {scene_name}: Image {img_name} appears entirely blank or single-colored.")
+                    if np.all(img_data == img_data[0, 0, 0]) or np.mean(img_data) < 1.0:
+                        errors.append(f"Scene {scene_name}: Image {img_name} appears entirely blank or single-colored (mean < 1.0).")
                         
                     # Check for NaNs
                     if np.isnan(img_data).any():

@@ -142,7 +142,9 @@ def run_pipeline(data_root, output_dir, model_dir, mode, skip_depth, iterations_
             train_cmd.extend([
                 "-r", "1",
                 "--antialiasing",
-                "--densify_grad_threshold", "0.00015"
+                "--densify_grad_threshold", "0.0001",
+                "--densification_interval", "70",
+                "--opacity_reset_interval", "2000"
             ])
             # Check sparse adam optimizer availability
             try:
