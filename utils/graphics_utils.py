@@ -75,3 +75,22 @@ def fov2focal(fov, pixels):
 
 def focal2fov(focal, pixels):
     return 2*math.atan(pixels/(2*focal))
+
+def getProjectionMatrixAsymmetric(znear, zfar, fx, fy, cx, cy, width, height):
+    P = torch.zeros(4, 4)
+    
+    left = -cx / fx * znear
+    right = (width - cx) / fx * znear
+    top = cy / fy * znear
+    bottom = -(height - cy) / fy * znear
+    
+    z_sign = 1.0
+
+    P[0, 0] = 2.0 * znear / (right - left)
+    P[1, 1] = 2.0 * znear / (top - bottom)
+    P[0, 2] = (right + left) / (right - left)
+    P[1, 2] = (top + bottom) / (top - bottom)
+    P[3, 2] = z_sign
+    P[2, 2] = z_sign * zfar / (zfar - znear)
+    P[2, 3] = -(zfar * znear) / (zfar - znear)
+    return P

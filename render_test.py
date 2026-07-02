@@ -118,6 +118,7 @@ def render_test_poses(model_path, test_poses_path, output_dir, pipeline, backgro
         qw, qx, qy, qz = row.qw, row.qx, row.qy, row.qz
         tx, ty, tz = row.tx, row.ty, row.tz
         fx, fy = row.fx, row.fy
+        cx, cy = row.cx, row.cy
         width, height = int(row.width), int(row.height)
         
         # Calculate R and T
@@ -147,7 +148,11 @@ def render_test_poses(model_path, test_poses_path, output_dir, pipeline, backgro
             data_device=args.data_device,
             train_test_exp=False,
             is_test_dataset=False,
-            is_test_view=True
+            is_test_view=True,
+            cx=cx,
+            cy=cy,
+            fx=fx,
+            fy=fy
         )
         
         # Render image

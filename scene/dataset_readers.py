@@ -36,6 +36,10 @@ class CameraInfo(NamedTuple):
     width: int
     height: int
     is_test: bool
+    cx: float = None
+    cy: float = None
+    fx: float = None
+    fy: float = None
 
 class SceneInfo(NamedTuple):
     point_cloud: BasicPointCloud
@@ -87,13 +91,18 @@ def readColmapCameras(cam_extrinsics, cam_intrinsics, depths_params, images_fold
 
         if intr.model=="SIMPLE_PINHOLE":
             focal_length_x = intr.params[0]
+            focal_length_y = intr.params[0]
             FovY = focal2fov(focal_length_x, height)
             FovX = focal2fov(focal_length_x, width)
+            cx = intr.params[1]
+            cy = intr.params[2]
         elif intr.model=="PINHOLE":
             focal_length_x = intr.params[0]
             focal_length_y = intr.params[1]
             FovY = focal2fov(focal_length_y, height)
             FovX = focal2fov(focal_length_x, width)
+            cx = intr.params[2]
+            cy = intr.params[3]
         else:
             assert False, "Colmap camera model not handled: only undistorted datasets (PINHOLE or SIMPLE_PINHOLE cameras) supported!"
 
@@ -111,7 +120,8 @@ def readColmapCameras(cam_extrinsics, cam_intrinsics, depths_params, images_fold
 
         cam_info = CameraInfo(uid=uid, R=R, T=T, FovY=FovY, FovX=FovX, depth_params=depth_params,
                               image_path=image_path, image_name=image_name, depth_path=depth_path,
-                              width=width, height=height, is_test=image_name in test_cam_names_list)
+                              width=width, height=height, is_test=image_name in test_cam_names_list,
+                              cx=cx, cy=cy, fx=focal_length_x, fy=focal_length_y)
         cam_infos.append(cam_info)
 
     sys.stdout.write('\n')

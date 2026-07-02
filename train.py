@@ -63,6 +63,10 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     use_sparse_adam = opt.optimizer_type == "sparse_adam" and SPARSE_ADAM_AVAILABLE 
     depth_l1_weight = get_expon_lr_func(opt.depth_l1_weight_init, opt.depth_l1_weight_final, max_steps=opt.iterations)
 
+    # Initialize LPIPS loss function
+    from lpipsPyTorch import LPIPS
+    lpips_fn = LPIPS(net_type='vgg').cuda()
+
     viewpoint_stack = scene.getTrainCameras().copy()
     viewpoint_indices = list(range(len(viewpoint_stack)))
     ema_loss_for_log = 0.0
@@ -124,6 +128,13 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             ssim_value = ssim(image, gt_image)
 
         loss = (1.0 - opt.lambda_dssim) * Ll1 + opt.lambda_dssim * (1.0 - ssim_value)
+
+        # LPIPS Loss (Fine-tuning phase)
+        if iteration > 20000:
+            image_lpips = image * 2.0 - 1.0
+            gt_image_lpips = gt_image * 2.0 - 1.0
+            lpips_loss = lpips_fn(image_lpips.unsqueeze(0), gt_image_lpips.unsqueeze(0)).mean()
+            loss += 0.3 * lpips_loss
 
         # Depth regularization
         Ll1depth_pure = 0.0
