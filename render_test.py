@@ -185,7 +185,7 @@ def render_test_poses(model_path, test_poses_path, output_dir, pipeline, backgro
                         print(f"Error during histogram matching for {image_name}: {e}")
             
             # Sharpening
-            rendered_np = apply_unsharp_mask(rendered_np, sigma=1.0, strength=0.15)
+            rendered_np = apply_unsharp_mask(rendered_np, sigma=1.0, strength=0.08)
             
         # Convert back to PIL Image and save
         rendered_img_uint8 = (rendered_np * 255.0).astype(np.uint8)

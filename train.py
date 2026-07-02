@@ -131,10 +131,27 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
         # LPIPS Loss (Fine-tuning phase)
         if iteration > 20000:
-            image_lpips = image * 2.0 - 1.0
-            gt_image_lpips = gt_image * 2.0 - 1.0
-            lpips_loss = lpips_fn(image_lpips.unsqueeze(0), gt_image_lpips.unsqueeze(0)).mean()
-            loss += 0.3 * lpips_loss
+            patch_size = 256
+            h, w = image.shape[1], image.shape[2]
+
+            if h >= patch_size and w >= patch_size:
+                # Select random top-left corner
+                top = torch.randint(0, h - patch_size + 1, (1,)).item()
+                left = torch.randint(0, w - patch_size + 1, (1,)).item()
+
+                image_crop = image[:, top:top+patch_size, left:left+patch_size]
+                gt_crop = gt_image[:, top:top+patch_size, left:left+patch_size]
+
+                image_lpips = image_crop * 2.0 - 1.0
+                gt_image_lpips = gt_crop * 2.0 - 1.0
+
+                lpips_loss = lpips_fn(image_lpips.unsqueeze(0), gt_image_lpips.unsqueeze(0)).mean()
+                loss += 0.3 * lpips_loss
+            else:
+                image_lpips = image * 2.0 - 1.0
+                gt_image_lpips = gt_image * 2.0 - 1.0
+                lpips_loss = lpips_fn(image_lpips.unsqueeze(0), gt_image_lpips.unsqueeze(0)).mean()
+                loss += 0.3 * lpips_loss
 
         # Depth regularization
         Ll1depth_pure = 0.0

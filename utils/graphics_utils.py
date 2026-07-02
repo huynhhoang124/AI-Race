@@ -90,7 +90,7 @@ def getProjectionMatrixAsymmetric(znear, zfar, fx, fy, cx, cy, width, height):
     P[1, 1] = 2.0 * znear / (top - bottom)
     P[0, 2] = (right + left) / (right - left)
     P[1, 2] = (top + bottom) / (top - bottom)
-    P[3, 2] = z_sign
     P[2, 2] = z_sign * zfar / (zfar - znear)
-    P[2, 3] = -(zfar * znear) / (zfar - znear)
+    P[2, 3] = z_sign
+    P[3, 2] = -(zfar * znear) / (zfar - znear)
     return P
